@@ -1,3 +1,5 @@
+const db = require('../db/database');
+
 module.exports = {
 
     getAccessToken: function() {
@@ -18,4 +20,3 @@ module.exports = {
       return 'works!';
     }
   };
-  
