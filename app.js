@@ -8,6 +8,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.set('trust proxy', 1);
 
+app.use(express.static(__dirname + '/public'));
+
 app.use('/', require('./routes'));
 
 app.use((req, res, next) => {
