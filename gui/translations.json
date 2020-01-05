@@ -1,18 +1,38 @@
 {
-    "fr-FR":
-    {
-        "menu":{
-            "home": "Accueil",
-            "about": "A propos",
-            "login": "Connexion"
+    "langs": [
+        {
+            "name": "Français",
+            "code": "fr-FR"
+        },
+        {
+            "name": "English",
+            "code": "en-US"
         }
+    ],
+    "fr-FR": {
+        "home": "Accueil",
+        "about": "A propos",
+        "login": "Connexion",
+        "signin": "Inscription",
+        "theme": "Thème",
+        "dark": "Sombre",
+        "light": "Clair",
+        "settings": "Paramètres",
+        "profile": "Profil",
+        "services": "Services",
+        "apps": "Applications"
     },
-    "en-US":
-    {
-        "menu":{
-            "home": "Home",
-            "about": "About",
-            "login": "Log in"
-        }
+    "en-US": {
+        "home": "Home",
+        "about": "About",
+        "login": "Log in",
+        "signin": "Sign in",
+        "theme": "Theme",
+        "dark": "Dark",
+        "light": "Light",
+        "settings": "Settings",
+        "profile": "Profile",
+        "services": "Services",
+        "apps": "Apps"
     }
 }
