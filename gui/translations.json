@@ -1,0 +1,18 @@
+{
+    "fr-FR":
+    {
+        "menu":{
+            "home": "Accueil",
+            "about": "A propos",
+            "login": "Connexion"
+        }
+    },
+    "en-US":
+    {
+        "menu":{
+            "home": "Home",
+            "about": "About",
+            "login": "Log in"
+        }
+    }
+}

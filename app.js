@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -7,6 +8,9 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.set('trust proxy', 1);
+app.use(cors());
+
+app.use(express.static(__dirname + '/public'));
 
 app.use('/', require('./routes'));
 
