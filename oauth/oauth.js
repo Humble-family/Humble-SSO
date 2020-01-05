@@ -14,7 +14,7 @@ module.exports = router => {
   });
 
   router.get('/oauth2/authorize', (req, res) => {
-    res.send('Plop');
+    const {client_id, redirect_uri, scope, state} = req.params;
   });
 
   const checkAuthentication = function (res, res, next) {
