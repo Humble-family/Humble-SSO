@@ -1,7 +1,12 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 
-const { User } = require('./User');
+const { User } = require('./models/User');
+const { AccessToken } = require('./models/AccessToken');
+const { RefreshToken } = require('./models/RefreshToken');
+const { AuthorizationCode } = require('./models/AuthorizationCode');
+const { Service } = require('./models/Service');
+const { Client } = require('./models/Client');
 
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.DB_HOST, {
@@ -17,32 +22,98 @@ db.once('open', () => {
   console.log('connected');
 });
 
-module.exports = router => {
-  router.get('/queryUserById/:id', (req, res) => {
-    User.findById(req.params.id).then(user => {
-      res.send(user.toJSON());
-    }).catch(err => {
-      res.status(404).send(`User with id ${req.params.id} not found`);
-    });
+const getUserById = id => {
+  User.findById(id).then(user => {
+    return user.toJSON();
+  }).catch(err => {
+    console.error(err);
+    return undefined;
   });
+};
 
-  router.post('/queryUserByCredentials', (req, res) => {
-    User.findByCredentials(req.body.mail, req.body.password).then(user => {
-      res.send(user);
-    }).catch(err => {
-      res.status(404).send(err);
-    })
+const getUserByCredentials = (mail, password) => {
+  User.findByCredentials(mail, password).then(user => {
+    return user.toJSON();
+  }).catch(err => {
+    console.error(err);
+    return undefined;
   });
-  
-  router.post('/createUser', (req, res) => {
-    const { username, mail, password, token } = req.body;
-    const user = new User({
-      username, mail, password, token, humblemail: `${username}@humble.ch`
-    });
-    user.save().then(user => {
-      res.send(user._id);
-    }).catch(err => {
-      res.status(404).send(err);
-    });
+};
+
+const createUser = user => {
+  user.save().then(user => {
+    return user._id;
+  }).catch(err => {
+    console.error(err);
+    return false;
   });
+};
+
+const getAccessToken = at => {
+  AccessToken.findOne({ accessToken: at }).then(token => {
+    return token.toJSON();
+  }).catch(err => {
+    console.error(err);
+    return undefined;
+  });
+};
+
+const getRefreshToken = rt => {
+  RefreshToken.findOne({ refreshToken: rt }).then(token => {
+    return token.toJSON();
+  }).catch(err => {
+    console.error(err);
+    return undefined;
+  });
+};
+
+const getAuthorizationCode = ac => {
+  AuthorizationCode.findOne({ authorizationCode: ac }).then(authorizationCode => {
+    return authorizationCode.toJSON();
+  }).catch(err => {
+    console.error(err);
+    return undefined;
+  });
+};
+
+const getClient = (id, secret) => {
+  Client.findById(id).then(client => {
+    if(secret && secret !== client.secret) return undefined;
+    return client;
+  }).catch(err => {
+    console.error(err);
+    return undefined;
+  });
+};
+
+const saveAccessToken = accessToken => {
+  accessToken.save().then(ac => {
+    return ac;
+  }).catch(err => {
+    console.error(err);
+    return undefined;
+  });
+};
+
+const saveRefreshToken = refreshToken => {
+  refreshToken.save().then(rt => {
+    return rt;
+  }).catch(err => {
+    console.error(err);
+    return undefined;
+  });
+};
+
+const saveAuthorizationCode = authorizationCode => {
+  authorizationCode.save().then(ac => {
+    return ac;
+  }).catch(err => {
+    console.error(err);
+    return undefined;
+  });
+};
+
+module.exports = () => {
+  getUserById, getUserByCredentials, createUser, getAccessToken, getRefreshToken,
+  getAuthorizationCode, getClient, saveAccessToken, saveRefreshToken, saveAuthorizationCode
 };

@@ -63,7 +63,10 @@ const UserSchema = new mongoose.Schema({
 
 UserSchema.methods.toJSON = function() {
   const userObject = this.toObject();
-  return _.pick(userObject, ['_id', 'mail']);
+  const user = _.pick(userObject, ['_id', 'username', 'avatar', 'isAdmin', 'mail', 'humblemail', 'apps', 'twofa']);
+  user.id = userObject._id;
+  delete user._id;
+  return user;
 };
 
 UserSchema.statics.findByCredentials = function(mail, password) {
@@ -82,9 +85,7 @@ UserSchema.pre('save', function(next) {
   if(this.isModified('password')) {
     bcrypt.genSalt(16, (err, salt) => {
       bcrypt.hash(this.password, salt, (err, hash) => {
-        console.log(err, hash);
         this.password = hash;
-        console.log(hash);
         next();
       });
     });
