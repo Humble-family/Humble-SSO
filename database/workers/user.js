@@ -1,8 +1,8 @@
 const validator = require('validator');
 
-const {User} = require('../../proto/User');
 const pool = require('../pool');
 const queries = require('../queries/user');
+const {User} = require('../../proto/User');
 
 const getUserById = async id => {
   if(!Number.isInteger(id)) {
