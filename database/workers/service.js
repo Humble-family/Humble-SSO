@@ -23,6 +23,7 @@ const getServices = async () => {
     conn = await pool.getConnection();
     const [res] = await conn.query(queries.GET_SERVICES);
     if(res) return res;
+    else return undefined;
   } catch(err) {
     console.error('Error when getting the services', err);
     return undefined;

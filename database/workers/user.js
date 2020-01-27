@@ -87,6 +87,28 @@ const createUser = async user => {
   }
 };
 
+const deleteUser = async username => {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    conn.beginTransaction();
+    const res = await conn.query(queries.DELETE_USER, [username]);
+    if(res.affectedRows === 1) {
+      conn.commit();
+      return true;
+    } else {
+      conn.rollback();
+      return false;
+    }
+  } catch(err) {
+    conn.rollback();
+    console.error(err);
+    return false;
+  } finally {
+    if(conn) conn.end();
+  }
+}
+
 module.exports = {
-  getUserById, getUserByCredentials, createUser
+  getUserById, getUserByCredentials, createUser, deleteUser
 };

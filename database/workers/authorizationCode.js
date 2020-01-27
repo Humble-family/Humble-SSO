@@ -23,8 +23,10 @@ const saveAuthorizationCode = async ac => {
   let conn;
   try {
     conn  = await pool.getConnection();
+    conn.beginTransaction();
     const res = await conn.query(queries.ADD_AUTHORIZATION_CODE, [ac.code, moment().unix(ac.expiresAt), ac.redirectUri, ac.scope, parseInt(ac.clientid), parseInt(ac.userid)]);
     if(res.affectedRows === 1) {
+      conn.commit();
       const [addedAC] = await conn.query(queries.GET_AUTHORIZATION_CODE, [ac.code]);
       if(addedAC) {
         return new AuthorizationCode(addedAC.PK_AuthorizationCode, addedAC.code, moment.unix(addedAC.expiresAt).toDate(), addedAC.redirectUri, addedAC.scope, addedAC.FK_Client, addedAC.FK_User);
@@ -32,9 +34,11 @@ const saveAuthorizationCode = async ac => {
         return undefined;
       } 
     } else {
+      conn.rollback();
       return undefined;
     }
   } catch(err) {
+    conn.rollback();
     console.error(err);
     return undefined;
   } finally {
@@ -43,7 +47,25 @@ const saveAuthorizationCode = async ac => {
 };
 
 const deleteAuthorizationCode = async ac => {
-
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    conn.beginTransaction();
+    const res = await conn.query(queries.DELETE_AUTHORIZATION_CODE, [ac]);
+    if(res.affectedRows === 1) {
+      conn.commit();
+      return true;
+    } else {
+      conn.rollback();
+      return false;
+    }
+  } catch(err) {
+    conn.rollback();
+    console.error(err);
+    return false;
+  } finally {
+    if(conn) conn.end();
+  }
 };
 
 module.exports = {
