@@ -1,10 +1,10 @@
 const validator = require('validator');
 const moment = require('moment');
 
-const {AuthorizationCode} = require('../proto/AuthorizationCode');
-const {AccessToken} = require('../proto/AccessToken');
-const {RefreshToken} = require('../proto/RefreshToken');
-const {BackendError} = require('../proto/BackendError');
+const AuthorizationCode = require('../proto/AuthorizationCode');
+const AccessToken = require('../proto/AccessToken');
+const RefreshToken = require('../proto/RefreshToken');
+const BackendError = require('../proto/BackendError');
 
 const userWrk = require('./workers/user');
 const atWrk = require('./workers/accessToken');

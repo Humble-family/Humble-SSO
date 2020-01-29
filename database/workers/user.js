@@ -51,7 +51,7 @@ const modifyUser = async (conn, user) => {
     user = await user.cryptPassword();
     if(user) {
       const result = await conn.query(queries.MODIFY_USER, [
-        user.username, user.avatar, user.twofa, user.password
+        user.username, user.avatar, user.twofa, user.password, user.id
       ]);
       return result.insertId;
     } else {
