@@ -2,7 +2,7 @@ const moment = require('moment');
 
 const pool = require('../pool');
 const queries = require('../queries/authorizationCode');
-const {AuthorizationCode} = require('../../proto/AuthorizationCode');
+const AuthorizationCode = require('../../proto/AuthorizationCode');
 
 const getAuthorizationCode = async ac => {
   let conn;

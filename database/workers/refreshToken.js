@@ -2,7 +2,7 @@ const moment = require('moment');
 
 const pool = require('../pool');
 const queries = require('../queries/refreshToken');
-const {RefreshToken} = require('../../proto/RefreshToken');
+const RefreshToken = require('../../proto/RefreshToken');
 
 const getRefreshToken = async rt => {
   let conn;

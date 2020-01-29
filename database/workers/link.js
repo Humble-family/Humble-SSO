@@ -1,6 +1,6 @@
 const pool = require('../pool');
 const queries = require('../queries/link');
-const {Link} = require('../../proto/Link');
+const Link = require('../../proto/Link');
 
 const getLink = async link => {
   let conn;

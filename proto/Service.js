@@ -1,4 +1,4 @@
-class Service {
+module.exports = class Service {
   constructor(id, name, url, color, logo) {
     this.id = id;
     this.name = name;
@@ -6,6 +6,4 @@ class Service {
     this.color = color;
     this.logo = logo;
   }
-};
-
-module.exports = {Service};
+}

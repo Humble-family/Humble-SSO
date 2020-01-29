@@ -1,4 +1,4 @@
-class RefreshToken {
+module.exports = class RefreshToken {
   constructor(id, refreshToken, expiresAt, scope, clientid, userid) {
     this.id = id;
     this.refreshToken = refreshToken;
@@ -8,5 +8,3 @@ class RefreshToken {
     this.userid = userid;
   }
 };
-
-module.exports = {RefreshToken};

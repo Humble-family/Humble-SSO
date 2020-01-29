@@ -1,4 +1,4 @@
-class AccessToken {
+module.exports = class AccessToken {
   constructor(id, accessToken, expiresAt, scope, clientid, userid) {
     this.id = id;
     this.accessToken = accessToken;
@@ -8,5 +8,3 @@ class AccessToken {
     this.userid = userid;
   }
 };
-
-module.exports = {AccessToken};

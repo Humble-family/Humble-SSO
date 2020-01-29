@@ -1,4 +1,4 @@
-class AuthorizationCode {
+module.exports = class AuthorizationCode {
   constructor(id, code, expiresAt, redirectUri, scope, clientid, userid) {
     this.id = id;
     this.code = code;
@@ -9,5 +9,3 @@ class AuthorizationCode {
     this.userid = userid;
   }
 }
-
-module.exports = {AuthorizationCode};

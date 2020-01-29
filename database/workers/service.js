@@ -1,6 +1,6 @@
 const pool = require('../pool');
 const queries = require('../queries/service');
-const {Service} = require('../../proto/Service');
+const Service = require('../../proto/Service');
 
 const getService = async service => {
   let conn;

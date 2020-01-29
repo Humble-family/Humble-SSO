@@ -1,4 +1,4 @@
-class Client {
+module.exports = class Client {
   constructor(id, redirectUris, grants, secret, userid) {
     this.id = id;
     this.redirectUris = redirectUris;
@@ -6,6 +6,4 @@ class Client {
     this.secret = secret;
     this.userid = userid;
   }
-};
-
-module.exports = {Client};
+}

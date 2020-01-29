@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 
-class User {
+module.exports = class User {
   constructor(id, username, avatar, isAdmin, mail, humblemail, apps, twofa, password) {
     this.id = id;
     this.username = username;
@@ -47,6 +47,4 @@ class User {
       });
     });
   }
-};
-
-module.exports = {User};
+}

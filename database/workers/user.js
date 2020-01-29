@@ -1,114 +1,78 @@
-const validator = require('validator');
-
 const pool = require('../pool');
 const queries = require('../queries/user');
-const {User} = require('../../proto/User');
+const User = require('../../proto/User');
+const BackendError = require('../proto/BackendError');
 
-const getUserById = async id => {
-  if(!Number.isInteger(id)) {
-    console.error('Id is not an integer');
-    return undefined;
-  }
-  let conn;
+const getUserById = async (conn, id) => {
   try {
-    conn = await pool.getConnection();
     const [res] = await conn.query(queries.GET_USER_BY_ID, [parseInt(id)]);
     if(res) return new User(res.PK_User, res.username, res.avatar, res.isAdmin, res.mail, res.humblemail, res.apps, res.twofa, res.password).format(); 
-    else return undefined;
+    else throw new BackendError(404, `User with id ${id} not found`, err.mesage);
   } catch(err) {
     console.error(err);
-    return undefined;
-  } finally {
-    if(conn) conn.end();
+    throw new BackendError(500, `Impossible to retrieve user with id ${id}`, err.message);
   }
 };
 
-const getUserByCredentials = async (mail, password) => {
-  if(!validator.isEmail(mail)) {
-    console.error('Mail is not a valid email');
-    return undefined;
-  }
-  let conn;
+const getUserByCredentials = async (conn, mail, password) => {
   try {
-    conn = await pool.getConnection();
     const [res] = await conn.query(queries.GET_USER_BY_CREDENTIALS, [mail]);
     if(res) {
       const user = new User(res.PK_User, res.username, res.avatar, res.isAdmin, res.mail, res.humblemail, res.apps, res.twofa, res.password);
       const passwordMatch = await user.comparePassword(password);
-      if(passwordMatch) {
-        return user.format();
-      } else {
-        console.error('Password does not match');
-        return undefined;
-      }
+      if(passwordMatch) return user.format();
+      else throw new BackendError(403, 'Password is incorrect', err.message);
     }
   } catch(err) {
     console.error(err);
-    return undefined;
-  } finally {
-    if(conn) conn.end();
+    throw new BackendError(500, `Impossible to retrieve user with mail ${mail}`, err.mesage);
   }
 };
 
 const createUser = async user => {
-  let conn;
   try {
-    conn = await pool.getConnection();
-    conn.beginTransaction();
     user = await user.cryptPassword();
     if(user) {
       const result = await conn.query(queries.ADD_USER, [
         user.username, user.avatar, user.isAdmin, user.mail, user.humblemail, JSON.stringify(user.apps), user.twofa, user.password
       ]);
-      if(result.affectedRows === 1) {
-        conn.commit();
-        const [res] = await conn.query(queries.GET_USER_BY_ID, [parseInt(result.insertId)]);
-        if(res) {
-          return new User(res.PK_User, res.username, res.avatar, res.isAdmin, res.mail, res.humblemail, res.apps, res.twofa, res.password).format();
-        } else {
-          console.error('No result received (user.createUser)');
-          return undefined;
-        }
-      } else {
-        console.error(result);
-        return undefined;
-      }
+      return result.insertId;
     } else {
-      console.error('Problem during password crypting (user.createUser)');
-      conn.rollback();
-      return undefined;
+      throw new BackendError(511, 'Password could not be crypted');
     }
   } catch(err) {
     console.error(err);
-    if(conn) conn.rollback();
-    return undefined;
-  } finally {
-    if(conn) conn.end();
+    throw new BackendError(500, 'Impossible to create a new user');
   }
 };
 
-const deleteUser = async username => {
-  let conn;
+const modifyUser = async (conn, user) => {
   try {
-    conn = await pool.getConnection();
-    conn.beginTransaction();
-    const res = await conn.query(queries.DELETE_USER, [username]);
-    if(res.affectedRows === 1) {
-      conn.commit();
-      return true;
+    user = await user.cryptPassword();
+    if(user) {
+      const result = await conn.query(queries.MODIFY_USER, [
+        user.username, user.avatar, user.twofa, user.password
+      ]);
+      return result.insertId;
     } else {
-      conn.rollback();
-      return false;
+      throw new BackendError(511, 'Password could not be crypted');
     }
   } catch(err) {
-    conn.rollback();
     console.error(err);
-    return false;
-  } finally {
-    if(conn) conn.end();
+    throw new BackendError(500, `Impossible to modify the user with id ${user.id}`);
+  }
+};
+
+const deleteUser = async (conn, id) => {
+  try {
+    const result = await conn.query(queries.DELETE_USER, [id]);
+    return result.affectedRows === 1;
+  } catch(err) {
+    console.error(err);
+    throw new BackendError(500, `Impossible to delete the user with id ${id}`);
   }
 }
 
 module.exports = {
-  getUserById, getUserByCredentials, createUser, deleteUser
-};
+  getUserById, getUserByCredentials, createUser, modifyUser, deleteUser
+}

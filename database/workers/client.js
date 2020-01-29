@@ -1,6 +1,6 @@
 const pool = require('../pool');
 const queries = require('../queries/client');
-const {Client} = require('../../proto/Client');
+const Client = require('../../proto/Client');
 
 const getClient = async (client, secret) => {
   let conn;

@@ -1,8 +1,11 @@
+const validator = require('validator');
+const moment = require('moment');
+
 const {AuthorizationCode} = require('../proto/AuthorizationCode');
 const {AccessToken} = require('../proto/AccessToken');
 const {RefreshToken} = require('../proto/RefreshToken');
+const {BackendError} = require('../proto/BackendError');
 
-const moment = require('moment');
 const userWrk = require('./workers/user');
 const atWrk = require('./workers/accessToken');
 const rtWrk = require('./workers/refreshToken');
@@ -11,16 +14,84 @@ const clientWrk = require('./workers/client');
 const serviceWrk = require('./workers/service');
 
 const getUserById = async id => {
-  return await userWrk.getUserById(id);
+  if(!Number.isInteger(id)) {
+    throw new BackendError(401, 'id must be an integer');
+  }
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    return await userWrk.getUserById(conn, id);
+  } catch(err) {
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
 };
 
 const getUserByCredentials = async (mail, password) => {
-  return await userWrk.getUserByCredentials(mail, password);
+  if(!validator.isEmail(mail)) {
+    throw new BackendError(402, 'Invalid email address');
+  }
+  let conn;
+  try {
+    conn  = await pool.getConnection();
+    return await userWrk.getUserByCredentials(conn, mail, password);
+  } catch(err) {
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
 };
 
 const createUser = async user => {
-  return await userWrk.createUser(user);
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    conn.beginTransaction();
+    const id = await userWrk.createUser(conn, user);
+    const result = await userWrk.getUserById(conn, id);
+    conn.commit();
+    return result;
+  } catch(err) {
+    conn.rollback();
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
 };
+
+const modifyUser = async user => {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    conn.beginTransaction();
+    const id = await userWrk.modifyUser(conn, user);
+    const result = await userWrk.getUserById(conn, id);
+    conn.commit();
+    return result;
+  } catch(err) {
+    conn.rollback();
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
+};
+
+const deleteUser = async id => {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    conn.beginTransaction();
+    const result = await userWrk.deleteUser(conn, id);
+    conn.commit();
+    return result;
+  } catch(err) {
+    conn.rollback();
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
+}
 
 const getAccessToken = async at => {
   return await atWrk.getAccessToken(at);
@@ -85,6 +156,8 @@ module.exports = {
   getUserById,
   getUserByCredentials,
   createUser,
+  modifyUser,
+  deleteUser,
   getAccessToken,
   saveAccessToken,
   getRefreshToken,

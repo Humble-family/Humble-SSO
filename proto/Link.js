@@ -1,4 +1,4 @@
-class Link {
+module.exports = class Link {
   constructor(id, serviceid, userid, scopes, refreshToken, username) {
     this.id = id;
     this.serviceid = serviceid;
@@ -7,6 +7,4 @@ class Link {
     this.refreshToken = refreshToken;
     this.username = username;
   }
-};
-
-module.exports = {Link};
+}

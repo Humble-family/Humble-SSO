@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-const {AccessToken} = require('../../proto/AccessToken');
+const AccessToken = require('../../proto/AccessToken');
 const pool = require('../pool');
 const queries = require('../queries/accessToken');
 
