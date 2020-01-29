@@ -1,26 +1,22 @@
-const pool = require('../pool');
 const queries = require('../queries/client');
 const Client = require('../../proto/Client');
+const BackendError = require('../../proto/BackendError');
 
-const getClient = async (client, secret) => {
-  let conn;
+const getClient = async (conn, client, secret) => {
   try {
-    conn = await pool.getConnection();
     const [res] = await conn.query(queries.GET_CLIENT, [client]);
     if(res) {
       if(!secret || (secret && res.secret === secret)) {
         return new Client(res.PK_Client, res.redirectUris, res.grants, res.secret, res.userid);
       } else {
-        return undefined;
+        throw new BackendError(403, 'Secret is incorrect', err.message);
       }
     } else {
-      return undefined;
+      throw new BackendError(500, `Impossible to retrieve client ${client}`, err.mesage);
     }
   } catch(err) {
     console.error(err);
-    return undefined;
-  } finally {
-    if(conn) conn.end();
+    throw new BackendError(500, `Impossible to retrieve client ${client}`, err.mesage);
   }
 };
 

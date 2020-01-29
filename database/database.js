@@ -4,8 +4,10 @@ const moment = require('moment');
 const AuthorizationCode = require('../proto/AuthorizationCode');
 const AccessToken = require('../proto/AccessToken');
 const RefreshToken = require('../proto/RefreshToken');
+const User = require('../proto/User');
 const BackendError = require('../proto/BackendError');
 
+const pool = require('./pool');
 const userWrk = require('./workers/user');
 const atWrk = require('./workers/accessToken');
 const rtWrk = require('./workers/refreshToken');
@@ -53,7 +55,7 @@ const createUser = async user => {
     conn.commit();
     return result;
   } catch(err) {
-    conn.rollback();
+    if(conn) conn.rollback();
     throw err;
   } finally {
     if(conn) conn.end();
@@ -70,7 +72,7 @@ const modifyUser = async user => {
     conn.commit();
     return result;
   } catch(err) {
-    conn.rollback();
+    if(conn) conn.rollback();
     throw err;
   } finally {
     if(conn) conn.end();
@@ -86,7 +88,7 @@ const deleteUser = async id => {
     conn.commit();
     return result;
   } catch(err) {
-    conn.rollback();
+    if(conn) conn.rollback();
     throw err;
   } finally {
     if(conn) conn.end();
@@ -94,48 +96,167 @@ const deleteUser = async id => {
 }
 
 const getAccessToken = async at => {
-  return await atWrk.getAccessToken(at);
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    return await atWrk.getAccessToken(at);
+  } catch(err) {
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
 };
 
 const saveAccessToken = async at => {
-  return await atWrk.saveAccessToken(at);
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    conn.beginTransaction();
+    await atWrk.saveAccessToken(at);
+    const result = await atWrk.getAccessToken(at);
+    conn.commit();
+    return result;
+  } catch(err) {
+    if(conn) conn.rollback();
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
 };
 
 const getRefreshToken = async rt => {
-  return await rtWrk.getRefreshToken(rt);
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    return await rtWrk.getRefreshToken(rt);
+  } catch(err) {
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
 };
 
 const saveRefreshToken = async rt => {
-  return await rtWrk.saveRefreshToken(rt);
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    conn.beginTransaction();
+    await rtWrk.saveRefreshToken(rt);
+    const result = await rtWrk.getRefreshToken(rt);
+    conn.commit();
+    return result;
+  } catch(err) {
+    if(conn) conn.rollback();
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
 };
 
 const deleteRefreshToken = async rt => {
-  return await rtWrk.deleteRefreshToken(rt);
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    conn.beginTransaction();
+    const result = await rtWrk.deleteRefreshToken(rt);
+    if(result) conn.commit();
+    else if(conn) conn.rollback();
+  } catch(err) {
+    if(conn) conn.rollback();
+    throw err;
+  } finally {
+    if (conn) conn.end();
+  }
 };
 
 const getAuthorizationCode = async ac => {
-  return await acWrk.getAuthorizationCode(ac);
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    return await acWrk.getAuthorizationCode(ac);
+  } catch (err) {
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
 };
 
 const saveAuthorizationCode = async ac => {
-  return await acWrk.saveAuthorizationCode(ac);
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    conn.beginTransaction();
+    await acWrk.saveAuthorizationCode(ac);
+    const result = await acWrk.getAuthorizationCode(ac);
+    conn.commit();
+    return result
+  } catch(err) {
+    if(conn) conn.rollback();
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
 };
 
 const deleteAuthorizationCode = async ac => {
-  return await acWrk.deleteAuthorizationCode(ac);
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    conn.beginTransaction();
+    const result = await acWrk.deleteAuthorizationCode(ac);
+    if(result) conn.commit();
+    else if(conn) conn.rollback();
+  } catch(err) {
+    if(conn) conn.rollback();
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
 };
 
 const getClient = async (clientid, secret) => {
-  return await clientWrk.getClient(clientid, secret);
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    return await clientWrk.getClient(clientid, secret);
+  } catch(err) {
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
 };
 
 const getService = async service => {
-  return await serviceWrk.getService(service);
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    return await serviceWrk.getService(service);
+  } catch(err) {
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
 };
 
 const getServices = async () => {
-  return await serviceWrk.getServices();
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    return await serviceWrk.getServices();
+  } catch(err) {
+    throw err;
+  } finally {
+    if(conn) conn.end();
+  }
 };
+
+createUser(new User(0, 'test', '', 0, 'test@test.test', 'test@humble.ch', [], 0, 'test')).then(data => {
+  console.log(data);
+  return getUserById(data.id);
+}).then(user => {
+  console.log(user);
+  return getUserByCredentials('test@test.test', 'test');
+}).then(user => console.log(user)).catch(e => console.log(e));
 
 saveAccessToken(new AccessToken(0, 'test', moment().toDate(), 'test', 1, 1)).then(data => {
   console.log(data);
@@ -145,12 +266,12 @@ saveAccessToken(new AccessToken(0, 'test', moment().toDate(), 'test', 1, 1)).the
 saveRefreshToken(new RefreshToken(0, 'test', moment().toDate(), 'test', 1, 1)).then(data => {
   console.log(data);
   return getRefreshToken('test');
-}).then(at => console.log(at)).catch(e => console.log(e));
+}).then(at => console.log(rt)).catch(e => console.log(e));
 
 saveAuthorizationCode(new AuthorizationCode(0, 'test', moment().toDate(), null, 'test', 1, 1)).then(data => {
   console.log(data);
   return getAuthorizationCode('test');
-}).then(at => console.log(at)).catch(e => console.log(e));
+}).then(at => console.log(ac)).catch(e => console.log(e));
 
 module.exports = {
   getUserById,

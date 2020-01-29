@@ -1,7 +1,6 @@
-const pool = require('../pool');
 const queries = require('../queries/user');
 const User = require('../../proto/User');
-const BackendError = require('../proto/BackendError');
+const BackendError = require('../../proto/BackendError');
 
 const getUserById = async (conn, id) => {
   try {
@@ -29,20 +28,27 @@ const getUserByCredentials = async (conn, mail, password) => {
   }
 };
 
-const createUser = async user => {
+const createUser = async (conn, user) => {
   try {
     user = await user.cryptPassword();
     if(user) {
       const result = await conn.query(queries.ADD_USER, [
-        user.username, user.avatar, user.isAdmin, user.mail, user.humblemail, JSON.stringify(user.apps), user.twofa, user.password
+        user.username,
+        user.avatar,
+        user.isAdmin,
+        user.mail,
+        user.humblemail,
+        JSON.stringify(user.apps),
+        user.twofa,
+        user.password
       ]);
       return result.insertId;
     } else {
-      throw new BackendError(511, 'Password could not be crypted');
+      throw new BackendError(511, 'Password could not be crypted', err.message);
     }
   } catch(err) {
     console.error(err);
-    throw new BackendError(500, 'Impossible to create a new user');
+    throw new BackendError(500, 'Impossible to create a new user', err.message);
   }
 };
 
@@ -51,15 +57,19 @@ const modifyUser = async (conn, user) => {
     user = await user.cryptPassword();
     if(user) {
       const result = await conn.query(queries.MODIFY_USER, [
-        user.username, user.avatar, user.twofa, user.password, user.id
+        user.username,
+        user.avatar,
+        user.twofa,
+        user.password,
+        user.id
       ]);
       return result.insertId;
     } else {
-      throw new BackendError(511, 'Password could not be crypted');
+      throw new BackendError(511, 'Password could not be crypted', err.message);
     }
   } catch(err) {
     console.error(err);
-    throw new BackendError(500, `Impossible to modify the user with id ${user.id}`);
+    throw new BackendError(500, `Impossible to modify the user with id ${user.id}`, err.message);
   }
 };
 
@@ -69,7 +79,7 @@ const deleteUser = async (conn, id) => {
     return result.affectedRows === 1;
   } catch(err) {
     console.error(err);
-    throw new BackendError(500, `Impossible to delete the user with id ${id}`);
+    throw new BackendError(500, `Impossible to delete the user with id ${id}`, err.mesage);
   }
 }
 

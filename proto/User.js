@@ -27,6 +27,7 @@ module.exports = class User {
     this.twofa = false;
   }
   cryptPassword = () => {
+    console.log('bla');
     return new Promise((resolve, reject) => {
       bcrypt.hash(this.password, 10).then(hash => {
         this.password = hash;

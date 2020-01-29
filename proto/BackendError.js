@@ -16,7 +16,7 @@ module.exports = class BackendError extends Error {
  * Codes:
  *  400: client error
  *  - 401: requested id is not an integer
- *  - 403: wrong password
+ *  - 403: wrong password or secret
  *  - 404: requested id not found
  *  500: server error
  *  - 503: database error

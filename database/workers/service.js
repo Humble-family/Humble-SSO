@@ -1,34 +1,24 @@
-const pool = require('../pool');
 const queries = require('../queries/service');
 const Service = require('../../proto/Service');
+const BackendError = require('../../proto/BackendError');
 
-const getService = async service => {
-  let conn;
+const getService = async (conn, service) => {
   try {
-    conn = await pool.getConnection();
     const [res] = await conn.query(queries.GET_SERVICE, [service]);
     if(res) return new Service(res.PK_Service, res.name, res.url); 
-    else return undefined;
+    else throw new BackendError(404, `Service ${service} not found`);
   } catch(err) {
     console.error(err);
-    return undefined;
-  } finally {
-    if(conn) conn.end();
+    throw new BackendError(500, `Impossible to retrieve service ${service}`);
   }
 };
 
-const getServices = async () => {
-  let conn;
+const getServices = async conn => {
   try {
-    conn = await pool.getConnection();
-    const [res] = await conn.query(queries.GET_SERVICES);
-    if(res) return res;
-    else return undefined;
+    return await conn.query(queries.GET_SERVICES);
   } catch(err) {
-    console.error('Error when getting the services', err);
-    return undefined;
-  } finally {
-    if(conn) conn.end();
+    console.error(err);
+    throw new BackendError(500, 'Impossible to retrieve services');
   }
 };
 

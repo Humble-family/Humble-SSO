@@ -1,70 +1,44 @@
 const moment = require('moment');
 
-const pool = require('../pool');
 const queries = require('../queries/authorizationCode');
 const AuthorizationCode = require('../../proto/AuthorizationCode');
+const BackendError = require('../../proto/BackendError');
 
-const getAuthorizationCode = async ac => {
-  let conn;
+const getAuthorizationCode = async (conn, ac) => {
   try {
-    conn = await pool.getConnection();
     const [res] = await conn.query(queries.GET_AUTHORIZATION_CODE, [ac]);
     if(res) return new AuthorizationCode(res.PK_AuthorizationCode, res.code, moment.unix(res.expiresAt).toDate(), res.redirectUri, res.scope, res.FK_Client, res.FK_User); 
-    else return undefined;
+    else throw new BackendError(404, `Authorization code ${ac} not found`);
   } catch(err) {
     console.error(err);
-    return undefined;
-  } finally {
-    if(conn) conn.end();
+    throw new BackendError(500, `Impossible to retrieve authorization code ${ac}`, err.mesage);
   }
 };
 
-const saveAuthorizationCode = async ac => {
-  let conn;
+const saveAuthorizationCode = async (conn, ac) => {
   try {
-    conn  = await pool.getConnection();
-    conn.beginTransaction();
-    const res = await conn.query(queries.ADD_AUTHORIZATION_CODE, [ac.code, moment().unix(ac.expiresAt), ac.redirectUri, ac.scope, parseInt(ac.clientid), parseInt(ac.userid)]);
-    if(res.affectedRows === 1) {
-      conn.commit();
-      const [addedAC] = await conn.query(queries.GET_AUTHORIZATION_CODE, [ac.code]);
-      if(addedAC) {
-        return new AuthorizationCode(addedAC.PK_AuthorizationCode, addedAC.code, moment.unix(addedAC.expiresAt).toDate(), addedAC.redirectUri, addedAC.scope, addedAC.FK_Client, addedAC.FK_User);
-      } else {
-        return undefined;
-      } 
-    } else {
-      conn.rollback();
-      return undefined;
-    }
+    const res = await conn.query(queries.ADD_AUTHORIZATION_CODE, [
+      ac.code,
+      moment().unix(ac.expiresAt),
+      ac.redirectUri,
+      ac.scope,
+      parseInt(ac.clientid),
+      parseInt(ac.userid)
+    ]);
+    return res.insertId;
   } catch(err) {
-    conn.rollback();
     console.error(err);
-    return undefined;
-  } finally {
-    if(conn) conn.end();
+    throw new BackendError(500, `Impossible to create a new authorization code ${ac}`, err.mesage);
   }
 };
 
-const deleteAuthorizationCode = async ac => {
-  let conn;
+const deleteAuthorizationCode = async (conn, ac) => {
   try {
-    conn = await pool.getConnection();
-    conn.beginTransaction();
     const res = await conn.query(queries.DELETE_AUTHORIZATION_CODE, [ac]);
-    if(res.affectedRows === 1) {
-      conn.commit();
-      return true;
-    } else {
-      conn.rollback();
-      return false;
-    }
+    return res.affectedRows === 1;
   } catch(err) {
-    conn.rollback();
     console.error(err);
-    return false;
-  } finally {
-    if(conn) conn.end();
+    throw new BackendError(500, `Impossible to delete authorization code ${ac}`, err.mesage);
   }
 };
 
