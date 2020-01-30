@@ -10,7 +10,7 @@ const getAccessToken = async (conn, at) => {
     if(res) {
       return new AccessToken(res.PK_AccessToken, res.accessToken, moment.unix(res.expiresAt).toDate(), res.scope, res.FK_Client, res.FK_User); 
     } else {
-      throw new BackendError(404, `Access token ${at} not found`, err.mesage);
+      throw new BackendError(404, `Access token ${at} not found`);
     }
   } catch(err) {
     console.error(err);

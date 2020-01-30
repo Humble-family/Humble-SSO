@@ -6,7 +6,7 @@ const getUserById = async (conn, id) => {
   try {
     const [res] = await conn.query(queries.GET_USER_BY_ID, [parseInt(id)]);
     if(res) return new User(res.PK_User, res.username, res.avatar, res.isAdmin, res.mail, res.humblemail, res.apps, res.twofa, res.password).format(); 
-    else throw new BackendError(404, `User with id ${id} not found`, err.mesage);
+    else throw new BackendError(404, `User with id ${id} not found`);
   } catch(err) {
     console.error(err);
     throw new BackendError(500, `Impossible to retrieve user with id ${id}`, err.message);
@@ -20,7 +20,7 @@ const getUserByCredentials = async (conn, mail, password) => {
       const user = new User(res.PK_User, res.username, res.avatar, res.isAdmin, res.mail, res.humblemail, res.apps, res.twofa, res.password);
       const passwordMatch = await user.comparePassword(password);
       if(passwordMatch) return user.format();
-      else throw new BackendError(403, 'Password is incorrect', err.message);
+      else throw new BackendError(403, 'Password is incorrect');
     }
   } catch(err) {
     console.error(err);
@@ -44,7 +44,7 @@ const createUser = async (conn, user) => {
       ]);
       return result.insertId;
     } else {
-      throw new BackendError(511, 'Password could not be crypted', err.message);
+      throw new BackendError(511, 'Password could not be crypted');
     }
   } catch(err) {
     console.error(err);
@@ -65,7 +65,7 @@ const modifyUser = async (conn, user) => {
       ]);
       return result.insertId;
     } else {
-      throw new BackendError(511, 'Password could not be crypted', err.message);
+      throw new BackendError(511, 'Password could not be crypted');
     }
   } catch(err) {
     console.error(err);

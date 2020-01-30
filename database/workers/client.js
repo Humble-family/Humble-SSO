@@ -9,10 +9,10 @@ const getClient = async (conn, client, secret) => {
       if(!secret || (secret && res.secret === secret)) {
         return new Client(res.PK_Client, res.redirectUris, res.grants, res.secret, res.userid);
       } else {
-        throw new BackendError(403, 'Secret is incorrect', err.message);
+        throw new BackendError(403, 'Secret is incorrect');
       }
     } else {
-      throw new BackendError(500, `Impossible to retrieve client ${client}`, err.mesage);
+      throw new BackendError(500, `Impossible to retrieve client ${client}`);
     }
   } catch(err) {
     console.error(err);

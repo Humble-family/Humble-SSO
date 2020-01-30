@@ -6,10 +6,9 @@ const BackendError = require('../../proto/BackendError');
 
 const getRefreshToken = async (conn, rt) => {
   try {
-    conn = await pool.getConnection();
     const [res] = await conn.query(queries.GET_REFRESH_TOKEN, [rt]);
     if(res) return new RefreshToken(res.PK_RefreshToken, res.refreshToken, moment.unix(res.expiresAt).toDate(), res.scope, res.FK_Client, res.FK_User); 
-    else throw new BackendError(404, `Refresh token ${rt} not found`, err.mesage);
+    else throw new BackendError(404, `Refresh token ${rt} not found`);
   } catch(err) {
     console.error(err);
     throw new BackendError(500, `Impossible to retrieve refresh token ${rt}`, err.message);
