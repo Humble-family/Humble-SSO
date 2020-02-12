@@ -1,0 +1,5 @@
+{
+    "200": "Requête exécutée avec succès.",
+    "404": "Ressource introuvable.",
+    "500": "Une erreur interne est survenue. Contactez un administrateur."
+}

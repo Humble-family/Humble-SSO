@@ -268,10 +268,10 @@ const getServices = async () => {
 //   return getRefreshToken('test');
 // }).then(rt => console.log(rt)).catch(e => console.log(e));
 
-saveAuthorizationCode(new AuthorizationCode(0, 'test', moment().toDate(), 'test', 'test', 3, 4)).then(data => {
-  console.log(data);
-  return getAuthorizationCode('test');
-}).then(ac => console.log(ac)).catch(e => console.log(e));
+// saveAuthorizationCode(new AuthorizationCode(0, 'test', moment().toDate(), 'test', 'test', 3, 4)).then(data => {
+//   console.log(data);
+//   return getAuthorizationCode('test');
+// }).then(ac => console.log(ac)).catch(e => console.log(e));
 
 module.exports = {
   getUserById,

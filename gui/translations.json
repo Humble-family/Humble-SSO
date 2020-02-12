@@ -13,26 +13,36 @@
         "home": "Accueil",
         "about": "A propos",
         "login": "Connexion",
-        "signin": "Inscription",
+        "signin": "Pas encore inscrit ?",
         "theme": "Thème",
         "dark": "Sombre",
         "light": "Clair",
         "settings": "Paramètres",
         "profile": "Profil",
         "services": "Services",
-        "apps": "Applications"
+        "apps": "Applications",
+        "password": "Mot de passe",
+        "email": "Adresse email",
+        "email_required": "L'adresse email est nécessaire",
+        "email_valid": "L'adresse email doit être valide",
+        "forgotten_password": "Mot de passe oublié"
     },
     "en-US": {
         "home": "Home",
         "about": "About",
         "login": "Log in",
-        "signin": "Sign in",
+        "signin": "Not registered ?",
         "theme": "Theme",
         "dark": "Dark",
         "light": "Light",
         "settings": "Settings",
         "profile": "Profile",
         "services": "Services",
-        "apps": "Apps"
+        "apps": "Apps",
+        "password": "Password",
+        "email": "E-mail address",
+        "email_required": "Email address is required",
+        "email_valid": "Email address must be valid",
+        "forgotten_password": "I forgot my password"
     }
 }
