@@ -8,6 +8,6 @@
     "mariadb": "^2.1.5",
     "moment": "^2.24.0",
     "oauth2-server": "^3.0.1",
-    "validator": "^12.1.0"
+    "validator": "^13.7.0"
   }
 }
